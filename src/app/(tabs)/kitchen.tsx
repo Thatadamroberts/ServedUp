@@ -1,7 +1,9 @@
 import { router } from 'expo-router';
-import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ChefAvatar } from '../../components/ChefAvatar';
 import { KitchenScene } from '../../components/KitchenScene';
+import { PixelDialog, type DialogSpec } from '../../components/PixelDialog';
 import { PlayerHud } from '../../components/PlayerHud';
 import { RecipeCard } from '../../components/RecipeCard';
 import { Body, Coins, Panel, PixelText } from '../../components/ui';
@@ -11,20 +13,10 @@ import { currentLevel, recipesFor, recipeStatus, timesCooked, titleFor } from '.
 import type { CuisineId } from '../../game/types';
 import { colors } from '../../theme';
 
-function confirm(title: string, message: string, onYes: () => void) {
-  if (Platform.OS === 'web') {
-    if (globalThis.confirm?.(`${title}\n\n${message}`)) onYes();
-    return;
-  }
-  Alert.alert(title, message, [
-    { text: 'Cancel', style: 'cancel' },
-    { text: 'OK', onPress: onYes },
-  ]);
-}
-
 export default function Kitchen() {
   const game = useGame();
   const state = useGameState();
+  const [dialog, setDialog] = useState<DialogSpec | null>(null);
   const level = currentLevel(state);
   const title = titleFor(level);
   const cuisine = CUISINE_BY_ID[state.activeCuisine!];
@@ -41,12 +33,17 @@ export default function Kitchen() {
     if (state.unlockedCuisines.includes(id)) return game.switchCuisine(id);
     const c = CUISINE_BY_ID[id];
     if (state.coins < c.unlockCost) {
-      const msg = `You need ${c.unlockCost} coins to open the ${c.name} kitchen. Keep cooking!`;
-      return Platform.OS === 'web' ? globalThis.alert?.(msg) : Alert.alert('Not enough coins', msg);
+      return setDialog({
+        title: 'NOT ENOUGH COINS',
+        message: `You need ${c.unlockCost} coins to open the ${c.name} kitchen. You have ${state.coins}. Keep cooking!`,
+      });
     }
-    confirm(`Open ${c.name} kitchen?`, `Spend ${c.unlockCost} coins to unlock ${c.name} cuisine and its starter pantry.`, () =>
-      game.unlockCuisine(id),
-    );
+    setDialog({
+      title: `OPEN ${c.name.toUpperCase()}?`,
+      message: `Spend ${c.unlockCost} coins to unlock ${c.name} cuisine and its starter pantry.`,
+      confirmLabel: 'UNLOCK',
+      onConfirm: () => game.unlockCuisine(id),
+    });
   };
 
   return (
@@ -144,13 +141,22 @@ export default function Kitchen() {
       </View>
 
       <Pressable
-        onPress={() => confirm('Start over?', 'This erases your chef, coins and journal. Photos stay in your gallery.', () => game.reset().then(() => router.replace('/onboarding')))}
+        onPress={() =>
+          setDialog({
+            title: 'START OVER?',
+            message: 'This erases your chef, coins and journal.',
+            confirmLabel: 'RESET',
+            danger: true,
+            onConfirm: () => game.reset().then(() => router.replace('/onboarding')),
+          })
+        }
         style={{ marginTop: 30, alignSelf: 'center' }}
       >
         <PixelText size={7} color={colors.textDim}>
           RESET SAVE
         </PixelText>
       </Pressable>
+      <PixelDialog spec={dialog} onClose={() => setDialog(null)} />
     </ScrollView>
   );
 }
