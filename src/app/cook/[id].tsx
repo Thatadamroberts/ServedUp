@@ -2,12 +2,10 @@ import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { ChefAvatar } from '../../components/ChefAvatar';
-import { KitchenScene } from '../../components/KitchenScene';
+import { PlayerKitchen } from '../../components/PlayerKitchen';
 import { Body, PixelButton, PixelText, SegmentBar } from '../../components/ui';
-import { CUISINE_BY_ID, RECIPE_BY_ID } from '../../game/data';
-import { useGame, useGameState } from '../../game/GameContext';
-import { currentLevel, titleFor } from '../../game/progression';
+import { RECIPE_BY_ID } from '../../game/data';
+import { useGame } from '../../game/GameContext';
 import { colors } from '../../theme';
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -15,7 +13,6 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '
 export default function Cook() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const game = useGame();
-  const state = useGameState();
   const recipe = RECIPE_BY_ID[id];
   const [done, setDone] = useState<boolean[]>(() => recipe?.steps.map(() => false) ?? []);
   const [elapsed, setElapsed] = useState(0);
@@ -26,7 +23,6 @@ export default function Cook() {
   }, []);
 
   if (!recipe) return <Body>Recipe not found.</Body>;
-  const title = titleFor(currentLevel(state));
   const count = done.filter(Boolean).length;
   const allDone = count === done.length;
 
@@ -48,9 +44,7 @@ export default function Cook() {
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
-      <KitchenScene accent={CUISINE_BY_ID[recipe.cuisine].color} height={170}>
-        <ChefAvatar mode="cook" scarf={title.scarf} scarfShade={title.scarfShade} scale={5} />
-      </KitchenScene>
+      <PlayerKitchen mode="cook" cuisine={recipe.cuisine} height={170} />
 
       <View style={[styles.row, { justifyContent: 'space-between', marginTop: 12 }]}>
         <PixelText size={11} style={{ flex: 1 }} numberOfLines={2}>

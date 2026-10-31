@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AchievementToast } from '../components/AchievementToast';
 import { GameProvider, useGame } from '../game/GameContext';
 import { colors, PIXEL_FONT } from '../theme';
 
@@ -17,23 +18,29 @@ function Root() {
     );
   }
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: { backgroundColor: colors.bgDeep },
-        headerTintColor: colors.gold,
-        headerTitleStyle: { fontFamily: PIXEL_FONT, fontSize: 12 },
-        headerShadowVisible: false,
-        contentStyle: { backgroundColor: colors.bg },
-        headerBackButtonDisplayMode: 'minimal',
-      }}
-    >
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="recipe/[id]" options={{ title: 'Recipe' }} />
-      <Stack.Screen name="cook/[id]" options={{ title: 'Cooking!', gestureEnabled: false }} />
-      <Stack.Screen name="entry/[id]" options={{ title: 'Dish' }} />
-    </Stack>
+    <>
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: colors.bgDeep },
+          headerTintColor: colors.gold,
+          headerTitleStyle: { fontFamily: PIXEL_FONT, fontSize: 12 },
+          headerShadowVisible: false,
+          contentStyle: { backgroundColor: colors.bg },
+          headerBackButtonDisplayMode: 'minimal',
+        }}
+      >
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="recipe/[id]" options={{ title: 'Recipe' }} />
+        <Stack.Screen name="cook/[id]" options={{ title: 'Cooking!', gestureEnabled: false }} />
+        <Stack.Screen name="entry/[id]" options={{ title: 'Dish' }} />
+        <Stack.Screen name="wardrobe" options={{ title: 'Wardrobe' }} />
+        <Stack.Screen name="trophies" options={{ title: 'Trophies' }} />
+        <Stack.Screen name="share" options={{ title: 'Share' }} />
+      </Stack>
+      <AchievementToast />
+    </>
   );
 }
 

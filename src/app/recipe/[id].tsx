@@ -1,9 +1,10 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Medal } from '../../components/Medal';
 import { Body, Coins, Difficulty, Panel, PixelButton, PixelText, Tag } from '../../components/ui';
 import { CUISINE_BY_ID, INGREDIENT_BY_ID, RECIPE_BY_ID } from '../../game/data';
 import { useGame, useGameState } from '../../game/GameContext';
-import { currentLevel, recipeStatus, rewardFor, timesCooked } from '../../game/progression';
+import { cooksToNextTier, currentLevel, MASTERY_NAMES, MASTERY_REWARDS, masteryTier, recipeStatus, rewardFor, timesCooked } from '../../game/progression';
 import { colors, difficultyLabel } from '../../theme';
 
 export default function RecipeDetail() {
@@ -20,6 +21,9 @@ export default function RecipeDetail() {
   const cuisine = CUISINE_BY_ID[recipe.cuisine];
   const locked = status === 'level-locked';
   const cooked = timesCooked(state, recipe.id);
+  const tier = masteryTier(cooked);
+  const toNext = cooksToNextTier(cooked);
+  const nextTier = (tier + 1) as 1 | 2 | 3;
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
@@ -46,11 +50,34 @@ export default function RecipeDetail() {
         <PixelText size={8} color={colors.textDim}>
           REWARD{reward.firstTime ? ' · FIRST COOK BONUS!' : ` · COOKED ×${cooked}`}
         </PixelText>
+        {reward.daily && (
+          <PixelText size={8} color={colors.gold} style={{ marginTop: 4 }}>
+            ★ CHEF&apos;S SPECIAL: DOUBLE XP TODAY
+          </PixelText>
+        )}
         <View style={[styles.row, { marginTop: 8, justifyContent: 'space-around' }]}>
           <PixelText size={14} color={colors.xp}>
             +{reward.xp} XP
           </PixelText>
           <Coins amount={reward.coins} size={14} />
+        </View>
+      </Panel>
+
+      <Panel style={{ marginTop: 10 }}>
+        <View style={styles.row}>
+          {[1, 2, 3].map((t) => (
+            <View key={t} style={{ marginRight: 8 }}>
+              <Medal tier={tier >= t ? (t as 1 | 2 | 3) : 0} scale={3} />
+            </View>
+          ))}
+          <View style={{ flex: 1, marginLeft: 4 }}>
+            <PixelText size={8}>{tier ? `${MASTERY_NAMES[tier].toUpperCase()} MASTERY` : 'NOT YET MASTERED'}</PixelText>
+            <Body dim style={{ fontSize: 12, lineHeight: 16, marginTop: 4 }}>
+              {toNext === null
+                ? 'Gold! This dish is part of your signature repertoire.'
+                : `Cook ${toNext} more time${toNext === 1 ? '' : 's'} for ${MASTERY_NAMES[nextTier]}${MASTERY_REWARDS[nextTier] ? ` (+${MASTERY_REWARDS[nextTier]} coins)` : ''}.`}
+            </Body>
+          </View>
         </View>
       </Panel>
 

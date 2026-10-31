@@ -41,7 +41,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#1b1a2e"
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "scheme": "servedup",
     "backgroundColor": "#1b1a2e"

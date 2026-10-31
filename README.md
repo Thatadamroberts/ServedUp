@@ -16,6 +16,12 @@ Built with Expo (SDK 58), React Native and Expo Router.
 | **Level up** | XP raises your level, which unlocks tougher recipes and gives you a new title. Your chef's neckerchief changes colour with each title. |
 | **Photograph** | After serving, take a photo with the camera or pick one from your library. It's linked to that cooked recipe in your **Journal**. The first photo on each dish pays a 10-coin tip. You can add notes too. |
 | **Expand** | Spend 120 coins to open another cuisine's kitchen and get its starter pantry. |
+| **Chef's Special** | Each day one dish you can cook is the Chef's Special, worth double XP the first time you serve it that day. |
+| **Streaks** | Cook on consecutive days to build a streak. Reaching 3, 7, 14 and 30 days pays 30, 75, 150 and 300 coins. |
+| **Mastery** | Cook a dish 1, 3 and 5 times for bronze, silver and gold medals. Silver pays 20 coins and gold pays 50. |
+| **Wardrobe** | Spend coins on hats, coats, a mustache or glasses, kitchen wall tiles and decor (a plant, copper pans, a cat, a neon sign). Try items on before buying. |
+| **Trophies** | 20 achievements, each paying coins, and a trophy appears on your kitchen counter for each one. |
+| **Share** | Export your chef profile or any cooked dish as an Instagram post (1080×1350) or story (1080×1920), with a ready-made caption. |
 
 There are 64 recipes across 6 cuisines, difficulty 1–5, with level gates up to LV 12. Titles run to LV 25.
 
@@ -40,12 +46,17 @@ src/
     (tabs)/recipes.tsx  cookbook for the active cuisine
     (tabs)/market.tsx   buy ingredients
     (tabs)/journal.tsx  photo grid of every dish you've served
+    wardrobe.tsx        buy and try on outfits and kitchen decor
+    trophies.tsx        achievement shelf
+    share.tsx           Instagram post / story export
     recipe/[id].tsx     recipe detail, inline buying
     cook/[id].tsx       step checklist + timer
     entry/[id].tsx      rewards / level-up + photo & notes for a cooked dish
   game/
     data.ts             cuisines, ingredients, recipes
-    progression.ts      pure game rules (XP curve, titles, buying, cooking, photos)
+    progression.ts      pure game rules (XP, titles, buying, cooking, streaks, specials, mastery, wardrobe)
+    achievements.ts     trophy definitions
+    cosmetics.ts        wardrobe and decor catalogue
     GameContext.tsx     state + AsyncStorage persistence
     photos.ts           camera / library capture, copied into app storage
   components/           pixel sprite renderer, avatar, kitchen scene, UI kit
@@ -79,5 +90,6 @@ The camera and photo-library permission prompts are set through the `expo-image-
 
 ## Data and privacy
 
-Progress is stored on the device with AsyncStorage. Photos are copied into the app's private
-documents folder (`dish-photos/`) so they last after the system clears its cache. Nothing is uploaded.
+Progress is stored on the device with AsyncStorage. Saves from older versions are upgraded automatically. Photos are copied into the app's private
+documents folder (`dish-photos/`) so they last after the system clears its cache. Nothing is uploaded:
+share images are made on the device and handed to the system share sheet, so you choose where they go.
