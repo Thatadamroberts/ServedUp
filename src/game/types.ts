@@ -40,6 +40,13 @@ export interface Recipe {
   coins: number;
 }
 
+/** A labelled extra reward shown on the "served" screen. */
+export interface Bonus {
+  label: string;
+  xp?: number;
+  coins?: number;
+}
+
 export interface Completion {
   id: string;
   recipeId: string;
@@ -47,9 +54,45 @@ export interface Completion {
   xpEarned: number;
   coinsEarned: number;
   firstTime: boolean;
+  /** Was this the day's Chef's Special? */
+  daily?: boolean;
+  bonuses?: Bonus[];
   photoUri?: string;
   photoBonusClaimed?: boolean;
   note?: string;
+}
+
+export type CosmeticSlot = 'hat' | 'outfit' | 'face' | 'wall' | 'decor';
+
+export interface Cosmetic {
+  id: string;
+  name: string;
+  slot: CosmeticSlot;
+  price: number;
+  minLevel: number;
+  description: string;
+}
+
+export interface Equipped {
+  hat: string;
+  outfit: string;
+  face: string;
+  wall: string;
+  /** Decor items can be shown together. */
+  decor: string[];
+}
+
+export interface Streak {
+  current: number;
+  best: number;
+  /** Local date (YYYY-MM-DD) of the last cook. */
+  lastDay: string | null;
+}
+
+export interface DailySpecial {
+  day: string;
+  recipeId: string;
+  claimed: boolean;
 }
 
 export interface GameState {
@@ -62,4 +105,10 @@ export interface GameState {
   totalXp: number;
   completions: Completion[];
   createdAt: number;
+  ownedCosmetics: string[];
+  equipped: Equipped;
+  streak: Streak;
+  daily: DailySpecial | null;
+  /** Achievement id → unlock time. */
+  achievements: Record<string, number>;
 }

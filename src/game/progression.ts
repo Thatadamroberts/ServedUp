@@ -1,10 +1,41 @@
-import { CUISINE_BY_ID, INGREDIENT_BY_ID, INGREDIENTS, RECIPE_BY_ID, RECIPES, STARTER_PACKS } from './data.ts';
-import type { Completion, CuisineId, GameState, Ingredient, Recipe } from './types.ts';
+import { ACHIEVEMENTS, type Achievement, type PlayerStats } from './achievements.ts';
+import { COSMETIC_BY_ID, DEFAULT_COSMETICS } from './cosmetics.ts';
+import { CUISINE_BY_ID, CUISINES, INGREDIENT_BY_ID, INGREDIENTS, RECIPE_BY_ID, RECIPES, STARTER_PACKS } from './data.ts';
+import type { Bonus, Completion, CuisineId, DailySpecial, Equipped, GameState, Ingredient, Recipe } from './types.ts';
 
 export const MAX_LEVEL = 30;
 export const STARTING_COINS = 50;
 export const PHOTO_BONUS_COINS = 10;
 export const FIRST_COOK_XP_MULTIPLIER = 1.5;
+export const DAILY_XP_MULTIPLIER = 2;
+
+/** Coins paid when a streak reaches these lengths. */
+export const STREAK_MILESTONES: Record<number, number> = { 3: 30, 7: 75, 14: 150, 30: 300 };
+
+export type MasteryTier = 0 | 1 | 2 | 3;
+export const MASTERY_NAMES = ['', 'Bronze', 'Silver', 'Gold'] as const;
+export const MASTERY_COLORS = ['', '#c0763b', '#c9d0da', '#ffcc33'] as const;
+/** Cooks needed for bronze / silver / gold. */
+export const MASTERY_THRESHOLDS = [1, 3, 5] as const;
+/** Coins paid on reaching silver and gold. */
+export const MASTERY_REWARDS: Record<number, number> = { 2: 20, 3: 50 };
+
+export const DEFAULT_EQUIPPED: Equipped = { hat: 'toque', outfit: 'whites', face: 'none', wall: 'blue_tiles', decor: [] };
+
+// ───────────── Dates ─────────────
+
+/** Local calendar day, e.g. "2026-10-31". */
+export function dayKey(ts: number): string {
+  const d = new Date(ts);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
+export function previousDay(key: string): string {
+  const [y, m, d] = key.split('-').map(Number);
+  return dayKey(new Date(y, m - 1, d - 1, 12).getTime());
+}
 
 /** XP needed to go from `level` to `level + 1`. */
 export function xpToNext(level: number): number {
@@ -83,6 +114,24 @@ export function newGame(chefName: string, cuisine: CuisineId, now = Date.now()):
     totalXp: 0,
     completions: [],
     createdAt: now,
+    ownedCosmetics: [...DEFAULT_COSMETICS],
+    equipped: { ...DEFAULT_EQUIPPED, decor: [] },
+    streak: { current: 0, best: 0, lastDay: null },
+    daily: null,
+    achievements: {},
+  };
+}
+
+/** Fills in fields added after a save was created, so older saves keep working. */
+export function normalizeState(raw: GameState): GameState {
+  const s = raw as Partial<GameState> & GameState;
+  return {
+    ...s,
+    ownedCosmetics: Array.from(new Set([...(s.ownedCosmetics ?? []), ...DEFAULT_COSMETICS])),
+    equipped: { ...DEFAULT_EQUIPPED, ...(s.equipped ?? {}), decor: s.equipped?.decor ?? [] },
+    streak: s.streak ?? { current: 0, best: 0, lastDay: null },
+    daily: s.daily ?? null,
+    achievements: s.achievements ?? {},
   };
 }
 
@@ -111,13 +160,96 @@ export function timesCooked(state: GameState, recipeId: string): number {
   return state.completions.filter((c) => c.recipeId === recipeId).length;
 }
 
-export function rewardFor(state: GameState, recipe: Recipe): { xp: number; coins: number; firstTime: boolean } {
+export function masteryTier(cooks: number): MasteryTier {
+  let tier: MasteryTier = 0;
+  MASTERY_THRESHOLDS.forEach((t, i) => {
+    if (cooks >= t) tier = (i + 1) as MasteryTier;
+  });
+  return tier;
+}
+
+/** Cooks still needed to reach the next tier, or null at gold. */
+export function cooksToNextTier(cooks: number): number | null {
+  const next = MASTERY_THRESHOLDS.find((t) => t > cooks);
+  return next === undefined ? null : next - cooks;
+}
+
+export function isDailySpecial(state: GameState, recipeId: string, now = Date.now()): boolean {
+  return !!state.daily && state.daily.day === dayKey(now) && state.daily.recipeId === recipeId && !state.daily.claimed;
+}
+
+/** Days in a row, counting today or yesterday as still alive. */
+export function activeStreak(state: GameState, now = Date.now()): number {
+  const { lastDay, current } = state.streak;
+  if (!lastDay) return 0;
+  const today = dayKey(now);
+  return lastDay === today || lastDay === previousDay(today) ? current : 0;
+}
+
+export function cookedToday(state: GameState, now = Date.now()): boolean {
+  return state.streak.lastDay === dayKey(now);
+}
+
+export function nextStreakMilestone(streak: number): { days: number; coins: number } | null {
+  const days = Object.keys(STREAK_MILESTONES)
+    .map(Number)
+    .find((d) => d > streak);
+  return days ? { days, coins: STREAK_MILESTONES[days] } : null;
+}
+
+export interface Reward {
+  xp: number;
+  coins: number;
+  firstTime: boolean;
+  daily: boolean;
+  bonuses: Bonus[];
+}
+
+/** XP and coins a cook would earn right now, including first-cook and Chef's Special bonuses. */
+export function rewardFor(state: GameState, recipe: Recipe, now = Date.now()): Reward {
   const firstTime = timesCooked(state, recipe.id) === 0;
+  const daily = isDailySpecial(state, recipe.id, now);
+  const bonuses: Bonus[] = [];
+  if (firstTime) bonuses.push({ label: 'First cook', xp: Math.round(recipe.xp * (FIRST_COOK_XP_MULTIPLIER - 1)) });
+  if (daily) bonuses.push({ label: "Chef's Special", xp: Math.round(recipe.xp * (DAILY_XP_MULTIPLIER - 1)) });
   return {
-    xp: Math.round(recipe.xp * (firstTime ? FIRST_COOK_XP_MULTIPLIER : 1)),
+    xp: recipe.xp + bonuses.reduce((n, b) => n + (b.xp ?? 0), 0),
     coins: recipe.coins,
     firstTime,
+    daily,
+    bonuses,
   };
+}
+
+function hash(str: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/** Picks today's Chef's Special: a dish you can cook now in your active cuisine, favouring ones not yet at gold. */
+export function pickDailySpecial(state: GameState, now = Date.now()): DailySpecial | null {
+  const day = dayKey(now);
+  const pools = [
+    RECIPES.filter((r) => r.cuisine === state.activeCuisine && recipeStatus(state, r) === 'ready' && masteryTier(timesCooked(state, r.id)) < 3),
+    RECIPES.filter((r) => r.cuisine === state.activeCuisine && recipeStatus(state, r) === 'ready'),
+    RECIPES.filter((r) => state.unlockedCuisines.includes(r.cuisine) && recipeStatus(state, r) === 'ready'),
+  ];
+  const pool = pools.find((p) => p.length > 0);
+  if (!pool) return null;
+  const pick = pool[hash(`${day}:${state.createdAt}`) % pool.length];
+  return { day, recipeId: pick.id, claimed: false };
+}
+
+/** Rolls a new Chef's Special when the day changes. Returns the same object when nothing changes. */
+export function ensureDailySpecial(state: GameState, now = Date.now()): GameState {
+  if (state.daily?.day === dayKey(now)) return state;
+  const daily = pickDailySpecial(state, now);
+  if (!daily) return state;
+  return { ...state, daily };
 }
 
 /** Ingredients shown in the market for the active cuisine: its own, plus common ones its recipes use. */
@@ -176,6 +308,9 @@ export interface CookOutcome {
   leveledUp: boolean;
   newLevel: number;
   newTitle?: Title;
+  streak: number;
+  mastery: MasteryTier;
+  masteryUp: boolean;
 }
 
 export function completeRecipe(
@@ -190,21 +325,47 @@ export function completeRecipe(
   if (status === 'level-locked') return { ok: false, error: 'level-locked' };
   if (status === 'needs-ingredients') return { ok: false, error: 'missing-ingredients' };
 
-  const reward = rewardFor(state, recipe);
+  const reward = rewardFor(state, recipe, now);
+  const bonuses = [...reward.bonuses];
   const before = currentLevel(state);
+
+  // Streak: cooking on consecutive days extends it; the first cook of a day counts once.
+  const today = dayKey(now);
+  let streak = state.streak;
+  if (streak.lastDay !== today) {
+    const current = streak.lastDay === previousDay(today) ? streak.current + 1 : 1;
+    streak = { current, best: Math.max(streak.best, current), lastDay: today };
+    const milestone = STREAK_MILESTONES[current];
+    if (milestone) bonuses.push({ label: `${current}-day streak`, coins: milestone });
+  }
+
+  // Mastery: reaching silver or gold pays out once.
+  const cooksBefore = timesCooked(state, recipeId);
+  const tierBefore = masteryTier(cooksBefore);
+  const tierAfter = masteryTier(cooksBefore + 1);
+  if (tierAfter > tierBefore && MASTERY_REWARDS[tierAfter]) {
+    bonuses.push({ label: `${MASTERY_NAMES[tierAfter]} mastery`, coins: MASTERY_REWARDS[tierAfter] });
+  }
+
+  const xp = recipe.xp + bonuses.reduce((n, b) => n + (b.xp ?? 0), 0);
+  const coins = recipe.coins + bonuses.reduce((n, b) => n + (b.coins ?? 0), 0);
   const completion: Completion = {
     id,
     recipeId,
     completedAt: now,
-    xpEarned: reward.xp,
-    coinsEarned: reward.coins,
+    xpEarned: xp,
+    coinsEarned: coins,
     firstTime: reward.firstTime,
+    daily: reward.daily || undefined,
+    bonuses,
   };
   const next: GameState = {
     ...state,
-    totalXp: state.totalXp + reward.xp,
-    coins: state.coins + reward.coins,
+    totalXp: state.totalXp + xp,
+    coins: state.coins + coins,
     completions: [completion, ...state.completions],
+    streak,
+    daily: reward.daily && state.daily ? { ...state.daily, claimed: true } : state.daily,
   };
   const after = currentLevel(next);
   const titleBefore = titleFor(before);
@@ -217,6 +378,9 @@ export function completeRecipe(
       leveledUp: after > before,
       newLevel: after,
       newTitle: titleAfter.name !== titleBefore.name ? titleAfter : undefined,
+      streak: streak.current,
+      mastery: tierAfter,
+      masteryUp: tierAfter > tierBefore,
     },
   };
 }
@@ -249,4 +413,64 @@ export function setNote(state: GameState, completionId: string, note: string): G
 export function setActiveCuisine(state: GameState, cuisine: CuisineId): GameState {
   if (!state.unlockedCuisines.includes(cuisine)) return state;
   return { ...state, activeCuisine: cuisine };
+}
+
+// ───────────── Wardrobe & decor ─────────────
+
+export function buyCosmetic(state: GameState, id: string): Result {
+  const item = COSMETIC_BY_ID[id];
+  if (!item) return { ok: false, error: 'unknown' };
+  if (state.ownedCosmetics.includes(id)) return { ok: false, error: 'already-owned' };
+  if (currentLevel(state) < item.minLevel) return { ok: false, error: 'level-locked' };
+  if (state.coins < item.price) return { ok: false, error: 'insufficient-coins' };
+  const bought: GameState = { ...state, coins: state.coins - item.price, ownedCosmetics: [...state.ownedCosmetics, id] };
+  return { ok: true, state: equipCosmetic(bought, id) };
+}
+
+/** Wears an owned item. Decor items toggle on and off; other slots hold one item. */
+export function equipCosmetic(state: GameState, id: string): GameState {
+  const item = COSMETIC_BY_ID[id];
+  if (!item || !state.ownedCosmetics.includes(id)) return state;
+  const eq = state.equipped;
+  if (item.slot === 'decor') {
+    const decor = eq.decor.includes(id) ? eq.decor.filter((d) => d !== id) : [...eq.decor, id];
+    return { ...state, equipped: { ...eq, decor } };
+  }
+  return { ...state, equipped: { ...eq, [item.slot]: id } };
+}
+
+// ───────────── Achievements ─────────────
+
+export function playerStats(state: GameState): PlayerStats {
+  const cooked = state.completions.map((c) => RECIPE_BY_ID[c.recipeId]).filter(Boolean);
+  const counts = new Map<string, number>();
+  for (const c of state.completions) counts.set(c.recipeId, (counts.get(c.recipeId) ?? 0) + 1);
+  return {
+    level: currentLevel(state),
+    dishes: state.completions.length,
+    photos: state.completions.filter((c) => c.photoUri).length,
+    unlockedCuisines: state.unlockedCuisines.length,
+    cuisinesCooked: new Set(cooked.map((r) => r.cuisine)).size,
+    totalCuisines: CUISINES.length,
+    golds: [...counts.values()].filter((n) => masteryTier(n) === 3).length,
+    bestStreak: state.streak.best,
+    dailySpecials: state.completions.filter((c) => c.daily).length,
+    pantry: state.ownedIngredients.length,
+    cosmeticsBought: state.ownedCosmetics.filter((id) => (COSMETIC_BY_ID[id]?.price ?? 0) > 0).length,
+    masterDishes: cooked.filter((r) => r.difficulty === 5).length,
+    longestCookMinutes: Math.max(0, ...cooked.map((r) => r.minutes)),
+  };
+}
+
+/** Unlocks any newly earned achievements and pays their coins. */
+export function applyAchievements(state: GameState, now = Date.now()): { state: GameState; unlocked: Achievement[] } {
+  const stats = playerStats(state);
+  const unlocked = ACHIEVEMENTS.filter((a) => !state.achievements[a.id] && a.check(stats));
+  if (!unlocked.length) return { state, unlocked };
+  const achievements = { ...state.achievements };
+  for (const a of unlocked) achievements[a.id] = now;
+  return {
+    state: { ...state, achievements, coins: state.coins + unlocked.reduce((n, a) => n + a.coins, 0) },
+    unlocked,
+  };
 }

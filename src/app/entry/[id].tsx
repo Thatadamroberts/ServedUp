@@ -1,13 +1,13 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { ChefAvatar } from '../../components/ChefAvatar';
-import { KitchenScene } from '../../components/KitchenScene';
+import { Medal } from '../../components/Medal';
+import { PlayerKitchen } from '../../components/PlayerKitchen';
 import { Body, Coins, Panel, PixelButton, PixelText } from '../../components/ui';
 import { CUISINE_BY_ID, RECIPE_BY_ID } from '../../game/data';
 import { useGame, useGameState } from '../../game/GameContext';
 import { capturePhoto, deletePhotoFile } from '../../game/photos';
-import { currentLevel, PHOTO_BONUS_COINS, titleFor } from '../../game/progression';
+import { MASTERY_NAMES, masteryTier, PHOTO_BONUS_COINS } from '../../game/progression';
 import { colors } from '../../theme';
 
 export default function Entry() {
@@ -21,7 +21,9 @@ export default function Entry() {
   if (!entry) return <Body>Entry not found.</Body>;
   const recipe = RECIPE_BY_ID[entry.recipeId];
   const fresh = params.fresh === '1';
-  const title = titleFor(currentLevel(state));
+  // Mastery as of this cook: count this entry and everything cooked before it.
+  const cookNumber = state.completions.filter((c) => c.recipeId === entry.recipeId && c.completedAt <= entry.completedAt).length;
+  const tier = masteryTier(cookNumber);
   const cuisine = CUISINE_BY_ID[recipe.cuisine];
 
   const addPhoto = async (source: 'camera' | 'library') => {
@@ -44,9 +46,7 @@ export default function Entry() {
 
       {fresh && (
         <>
-          <KitchenScene accent={cuisine.color} height={170}>
-            <ChefAvatar mode="cheer" scarf={title.scarf} scarfShade={title.scarfShade} scale={5} />
-          </KitchenScene>
+          <PlayerKitchen mode="cheer" cuisine={recipe.cuisine} height={170} />
           <PixelText size={16} color={colors.gold} style={{ textAlign: 'center', marginTop: 14 }}>
             DISH SERVED!
           </PixelText>
@@ -56,10 +56,20 @@ export default function Entry() {
             </PixelText>
             <Coins amount={entry.coinsEarned} size={14} />
           </View>
-          {entry.firstTime && (
-            <PixelText size={8} color={colors.textDim} style={{ textAlign: 'center', marginTop: 8 }}>
-              FIRST COOK BONUS ×1.5 XP
-            </PixelText>
+          {(entry.bonuses ?? []).length > 0 && (
+            <Panel style={{ marginTop: 12 }}>
+              <PixelText size={8} color={colors.textDim}>
+                BONUSES
+              </PixelText>
+              {(entry.bonuses ?? []).map((b) => (
+                <View key={b.label} style={[styles.row, { justifyContent: 'space-between', marginTop: 8 }]}>
+                  <PixelText size={8}>{b.label.toUpperCase()}</PixelText>
+                  <PixelText size={8} color={b.xp ? colors.xp : colors.gold}>
+                    {b.xp ? `+${b.xp} XP` : `+${b.coins} ¢`}
+                  </PixelText>
+                </View>
+              ))}
+            </Panel>
           )}
           {params.lv && (
             <Panel style={{ marginTop: 14 }} color="#3a2f12">
@@ -83,6 +93,14 @@ export default function Entry() {
         <Text style={{ fontSize: 28, marginRight: 10 }}>{recipe.emoji}</Text>
         <View style={{ flex: 1 }}>
           <PixelText size={11}>{recipe.name}</PixelText>
+          {tier > 0 && (
+            <View style={[styles.row, { marginTop: 4 }]}>
+              <Medal tier={tier} />
+              <PixelText size={7} color={colors.textDim} style={{ marginLeft: 6 }}>
+                {MASTERY_NAMES[tier].toUpperCase()} · COOK #{cookNumber}
+              </PixelText>
+            </View>
+          )}
           <Body dim style={{ fontSize: 12 }}>
             {cuisine.name} · {new Date(entry.completedAt).toLocaleString()}
           </Body>
@@ -144,10 +162,20 @@ export default function Entry() {
         style={styles.note}
       />
 
-      <PixelButton style={{ marginTop: 16 }} variant="ghost" small label="VIEW RECIPE" onPress={() => router.push(`/recipe/${recipe.id}`)} />
+      <PixelButton
+        style={{ marginTop: 16 }}
+        variant="gold"
+        label="SHARE TO INSTAGRAM"
+        onPress={() => {
+          game.setNote(entry.id, note);
+          router.push(`/share?kind=dish&id=${entry.id}`);
+        }}
+      />
+      <PixelButton style={{ marginTop: 10 }} variant="ghost" small label="VIEW RECIPE" onPress={() => router.push(`/recipe/${recipe.id}`)} />
       {fresh && (
         <PixelButton
           style={{ marginTop: 10 }}
+          variant="green"
           label="BACK TO KITCHEN ▶"
           onPress={() => {
             game.setNote(entry.id, note);
