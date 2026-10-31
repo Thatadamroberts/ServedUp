@@ -6,6 +6,7 @@ export const CUISINES: Cuisine[] = [
   { id: 'mexican', name: 'Mexican', emoji: '🌮', tagline: 'Tortillas, chiles & fire', color: '#2f9e5b', unlockCost: 120 },
   { id: 'indian', name: 'Indian', emoji: '🍛', tagline: 'Spice, slow-cooks & tadka', color: '#e89a1c', unlockCost: 120 },
   { id: 'french', name: 'French', emoji: '🥐', tagline: 'Butter, technique & finesse', color: '#3d6fd9', unlockCost: 120 },
+  { id: 'persian', name: 'Persian', emoji: '🫖', tagline: 'Saffron, herbs & golden tahdig', color: '#1aa3a3', unlockCost: 120 },
 ];
 
 /** Free starter pantry granted when a cuisine is chosen / unlocked. */
@@ -15,6 +16,7 @@ export const STARTER_PACKS: Record<CuisineId, string[]> = {
   mexican: ['tortillas', 'black_beans', 'onion', 'lime', 'tomato', 'cheese_mx'],
   indian: ['basmati', 'red_lentils', 'onion', 'garlic', 'turmeric', 'cumin'],
   french: ['baguette', 'butter', 'eggs', 'flour', 'milk'],
+  persian: ['basmati', 'yogurt', 'onion', 'turmeric', 'dried_mint', 'cucumber', 'eggs'],
 };
 
 /** Always in the cupboard; never listed as requirements. */
@@ -46,6 +48,10 @@ export const INGREDIENTS: Ingredient[] = [
   ing('cream', 'Double cream', '🍶', 'common', 30, 3),
   ing('white_wine', 'Dry white wine', '🥂', 'common', 40, 4),
   ing('beef_mince', 'Beef mince', '🥩', 'common', 50, 4),
+  ing('basmati', 'Basmati rice', '🍚', 'common', 25),
+  ing('turmeric', 'Turmeric', '🟡', 'common', 15),
+  ing('yogurt', 'Plain yogurt', '🥛', 'common', 20),
+  ing('aubergine', 'Aubergine', '🍆', 'common', 20, 2),
 
   // Italian
   ing('pasta', 'Dried spaghetti', '🍝', 'italian', 20),
@@ -101,9 +107,7 @@ export const INGREDIENTS: Ingredient[] = [
   ing('sesame', 'Sesame seeds', '⚪', 'mexican', 20, 12),
 
   // Indian
-  ing('basmati', 'Basmati rice', '🍚', 'indian', 25),
   ing('red_lentils', 'Red lentils', '🟠', 'indian', 15),
-  ing('turmeric', 'Turmeric', '🟡', 'indian', 15),
   ing('cumin', 'Cumin seeds', '🟤', 'indian', 15),
   ing('chilli_powder', 'Kashmiri chilli', '🌶️', 'indian', 15),
   ing('ginger', 'Fresh ginger', '🫚', 'indian', 15, 2),
@@ -113,7 +117,6 @@ export const INGREDIENTS: Ingredient[] = [
   ing('ghee', 'Ghee', '🧈', 'indian', 30, 4),
   ing('spinach', 'Spinach', '🥬', 'indian', 20, 5),
   ing('paneer', 'Paneer', '🧀', 'indian', 45, 5),
-  ing('yogurt', 'Plain yogurt', '🥛', 'indian', 20, 7),
   ing('cardamom', 'Green cardamom', '🟢', 'indian', 35, 10),
 
   // French
@@ -126,12 +129,27 @@ export const INGREDIENTS: Ingredient[] = [
   ing('lardons', 'Lardons', '🥓', 'french', 40, 4),
   ing('thyme', 'Thyme', '🌿', 'french', 15, 5),
   ing('beef_stock', 'Beef stock', '🥣', 'french', 25, 5),
-  ing('aubergine', 'Aubergine', '🍆', 'french', 20, 6),
   ing('courgette', 'Courgette', '🥒', 'french', 15, 6),
   ing('bell_pepper', 'Bell peppers', '🫑', 'french', 15, 6),
   ing('red_wine', 'Burgundy red wine', '🍷', 'french', 60, 8),
   ing('beef_chuck', 'Beef chuck', '🥩', 'french', 80, 10),
   ing('dark_choc', 'Dark chocolate 70%', '🍫', 'french', 50, 12),
+
+  // Persian
+  ing('dried_mint', 'Dried mint', '🌿', 'persian', 15),
+  ing('cucumber', 'Persian cucumbers', '🥒', 'persian', 10),
+  ing('saffron', 'Saffron', '🟧', 'persian', 50, 2),
+  ing('kashk', 'Kashk (fermented whey)', '🥣', 'persian', 30, 2),
+  ing('herbs_fa', 'Fresh herbs (parsley, coriander, dill)', '🌱', 'persian', 20, 3),
+  ing('dried_lime', 'Dried limes (limoo omani)', '🟤', 'persian', 25, 4),
+  ing('kidney_beans', 'Red kidney beans', '🫘', 'persian', 15, 4),
+  ing('lamb', 'Lamb shoulder', '🍖', 'persian', 70, 4),
+  ing('split_peas', 'Yellow split peas', '🟡', 'persian', 15, 5),
+  ing('walnuts', 'Walnuts', '🌰', 'persian', 35, 6),
+  ing('pom_molasses', 'Pomegranate molasses', '🍷', 'persian', 35, 6),
+  ing('barberries', 'Barberries (zereshk)', '🔴', 'persian', 40, 7),
+  ing('rosewater', 'Rosewater', '🌹', 'persian', 30, 9),
+  ing('pistachios', 'Pistachios', '🟢', 'persian', 45, 9),
 ];
 
 /** Rewards scale with difficulty so tougher dishes are worth more. */
@@ -740,6 +758,162 @@ export const RECIPES: Recipe[] = [
       'Whisk 4 whites to soft peaks, then add 40 g sugar to stiff, glossy peaks.',
       'Fold whites into the chocolate in three additions — keep the air!',
       'Fill ramekins, run a thumb round the rim, bake 12 minutes. Serve at once.',
+    ],
+  }),
+
+  // ───────────── PERSIAN ─────────────
+  recipe({
+    id: 'fa_mastokhiar', cuisine: 'persian', name: 'Mast-o-Khiar', emoji: '🥒', level: 1, difficulty: 1, minutes: 10, servings: 4,
+    description: 'Cool yogurt with crunchy cucumber and dried mint.',
+    ingredients: ['yogurt', 'cucumber', 'dried_mint'],
+    steps: [
+      'Finely dice or grate 2 Persian cucumbers; squeeze out excess water.',
+      'Stir into 400 g thick yogurt with a pinch of salt.',
+      'Rub 1 tsp dried mint between your palms over the bowl.',
+      'Chill 15 minutes. Serve with rice or bread.',
+    ],
+  }),
+  recipe({
+    id: 'fa_eshkeneh', cuisine: 'persian', name: 'Eshkeneh', emoji: '🧅', level: 1, difficulty: 1, minutes: 30, servings: 3,
+    description: 'Humble golden onion soup with mint and softly poached eggs.',
+    ingredients: ['onion', 'turmeric', 'dried_mint', 'eggs'],
+    steps: [
+      'Slowly fry 2 sliced onions in oil until deep golden, about 15 minutes.',
+      'Stir in 1 tsp turmeric and 1 tbsp dried mint for 30 seconds.',
+      'Add 1 litre water and salt; simmer 10 minutes.',
+      'Crack in the eggs and poach gently until just set.',
+    ],
+  }),
+  recipe({
+    id: 'fa_kateh', cuisine: 'persian', name: 'Kateh', emoji: '🍚', level: 1, difficulty: 1, minutes: 35, servings: 3,
+    description: 'Simple buttery Persian rice, cooked until it absorbs every drop.',
+    ingredients: ['basmati', 'butter'],
+    steps: [
+      'Rinse 2 cups basmati until the water runs clear.',
+      'Put in a pot with 3 cups water, 1 tsp salt and 2 tbsp butter.',
+      'Boil uncovered until the water is level with the rice and small holes appear.',
+      'Cover, turn the heat to very low and steam 20 minutes.',
+    ],
+  }),
+  recipe({
+    id: 'fa_kashkbademjan', cuisine: 'persian', name: 'Kashk-e Bademjan', emoji: '🍆', level: 2, difficulty: 2, minutes: 50, servings: 4,
+    description: 'Silky aubergine dip with tangy kashk, fried onions and mint.',
+    ingredients: ['aubergine', 'kashk', 'onion', 'garlic', 'dried_mint'],
+    steps: [
+      'Peel and slice 3 aubergines; fry in oil until soft and golden.',
+      'Fry a sliced onion until crisp and brown; set some aside for garnish.',
+      'Mash the aubergine with the onion, garlic and a splash of water; cook 10 minutes.',
+      'Stir in 4 tbsp kashk and season.',
+      'Top with more kashk, the crispy onions and mint sizzled in oil.',
+    ],
+  }),
+  recipe({
+    id: 'fa_kukusabzi', cuisine: 'persian', name: 'Kuku Sabzi', emoji: '🌿', level: 3, difficulty: 2, minutes: 45, servings: 4,
+    description: 'A thick, vivid-green herb frittata.',
+    ingredients: ['herbs_fa', 'eggs', 'turmeric', 'garlic'],
+    steps: [
+      'Very finely chop a large bunch each of parsley, coriander and dill.',
+      'Beat 5 eggs with turmeric, grated garlic, salt and pepper.',
+      'Fold in the herbs: the mix should be mostly green.',
+      'Cook in an oiled covered pan on low heat for 15 minutes.',
+      'Flip (or cut into quarters and turn) and cook 10 minutes more.',
+    ],
+  }),
+  recipe({
+    id: 'fa_joojeh', cuisine: 'persian', name: 'Joojeh Kabab', emoji: '🍢', level: 4, difficulty: 3, minutes: 60, servings: 4,
+    description: 'Saffron-and-lemon chicken skewers, charred and juicy.',
+    ingredients: ['chicken', 'saffron', 'yogurt', 'onion', 'lemon', 'butter'],
+    steps: [
+      'Grind a pinch of saffron and bloom it in 3 tbsp hot water.',
+      'Grate an onion; mix with yogurt, lemon juice, half the saffron, salt and pepper.',
+      'Marinate chicken chunks for at least 4 hours.',
+      'Thread onto skewers and grill or broil until charred and cooked through.',
+      'Baste with melted butter mixed with the rest of the saffron.',
+    ],
+  }),
+  recipe({
+    id: 'fa_tahdig', cuisine: 'persian', name: 'Chelow with Tahdig', emoji: '🥘', level: 4, difficulty: 3, minutes: 90, servings: 4,
+    description: 'Fluffy steamed rice crowned with a crunchy golden crust.',
+    ingredients: ['basmati', 'saffron', 'yogurt', 'butter'],
+    steps: [
+      'Soak 2 cups rinsed basmati in salted water for 1 hour.',
+      'Par-boil in plenty of salted water for 6 minutes; drain.',
+      'Mix 1 cup of the rice with yogurt and bloomed saffron; press into a hot oiled non-stick pot.',
+      'Mound the remaining rice on top, poke holes, add butter, wrap the lid in a towel.',
+      'Cook 10 minutes on medium, then 45 minutes on low.',
+      'Invert onto a platter to reveal the tahdig.',
+    ],
+  }),
+  recipe({
+    id: 'fa_ghormeh', cuisine: 'persian', name: 'Ghormeh Sabzi', emoji: '🍲', level: 5, difficulty: 3, minutes: 180, servings: 6,
+    description: 'The beloved herb stew with lamb, beans and dried lime.',
+    ingredients: ['lamb', 'herbs_fa', 'kidney_beans', 'dried_lime', 'onion', 'turmeric'],
+    steps: [
+      'Fry the finely chopped herbs in oil for 20 minutes until dark and fragrant.',
+      'Brown diced lamb with onion and turmeric.',
+      'Add water to cover and simmer 1 hour.',
+      'Add the herbs, kidney beans and pierced dried limes.',
+      'Simmer 1½ hours until thick and the oil rises to the top. Serve with chelow.',
+    ],
+  }),
+  recipe({
+    id: 'fa_gheymeh', cuisine: 'persian', name: 'Gheymeh', emoji: '🍛', level: 6, difficulty: 3, minutes: 120, servings: 6,
+    description: 'Tomato and split-pea stew topped with crispy potato sticks.',
+    ingredients: ['lamb', 'split_peas', 'dried_lime', 'tomato', 'onion', 'potatoes', 'turmeric'],
+    steps: [
+      'Brown diced lamb with onion and turmeric; add water and simmer 1 hour.',
+      'Add parboiled split peas, chopped tomatoes and pierced dried limes; simmer 40 minutes.',
+      'Cut potatoes into thin matchsticks and fry until crisp.',
+      'Season the stew and pile the potato sticks on top to serve.',
+    ],
+  }),
+  recipe({
+    id: 'fa_fesenjan', cuisine: 'persian', name: 'Fesenjan', emoji: '🌰', level: 7, difficulty: 4, minutes: 150, servings: 4,
+    description: 'Rich, sweet-sour walnut and pomegranate stew with chicken.',
+    ingredients: ['chicken', 'walnuts', 'pom_molasses', 'onion', 'turmeric'],
+    steps: [
+      'Toast 250 g walnuts, then grind very finely.',
+      'Cook the ground walnuts with 750 ml water on low for 1 hour, stirring, until the oil separates.',
+      'Brown chicken pieces with onion and turmeric.',
+      'Add the chicken and 5 tbsp pomegranate molasses to the walnuts.',
+      'Simmer 45 minutes; balance sweet and sour with sugar or more molasses.',
+    ],
+  }),
+  recipe({
+    id: 'fa_zereshkpolo', cuisine: 'persian', name: 'Zereshk Polo ba Morgh', emoji: '🍗', level: 8, difficulty: 4, minutes: 120, servings: 4,
+    description: 'Saffron rice jewelled with barberries, with braised chicken.',
+    ingredients: ['basmati', 'barberries', 'saffron', 'chicken', 'butter', 'onion'],
+    steps: [
+      'Braise chicken with onion, turmeric, saffron and a little water for 45 minutes.',
+      'Steam rice as for chelow.',
+      'Rinse barberries and sauté briefly in butter with a pinch of sugar (they burn fast).',
+      'Mix some rice with saffron water.',
+      'Plate white rice, then saffron rice and barberries on top, with the chicken alongside.',
+    ],
+  }),
+  recipe({
+    id: 'fa_sholehzard', cuisine: 'persian', name: 'Sholeh Zard', emoji: '🍮', level: 10, difficulty: 4, minutes: 90, servings: 6,
+    description: 'Saffron rice pudding scented with rosewater.',
+    ingredients: ['basmati', 'saffron', 'rosewater', 'pistachios', 'butter'],
+    steps: [
+      'Simmer ½ cup rinsed rice in 6 cups water until very soft, about 40 minutes.',
+      'Stir in 1 cup sugar and cook 15 minutes more.',
+      'Add bloomed saffron, a knob of butter and 3 tbsp rosewater; cook 15 minutes, stirring.',
+      'Pour into bowls and chill.',
+      'Decorate with slivered pistachios and cinnamon.',
+    ],
+  }),
+  recipe({
+    id: 'fa_tahchin', cuisine: 'persian', name: 'Tahchin', emoji: '🥧', level: 12, difficulty: 5, minutes: 180, servings: 6,
+    description: 'Baked saffron rice cake with a crisp crust and chicken inside.',
+    ingredients: ['basmati', 'chicken', 'yogurt', 'eggs', 'saffron', 'barberries', 'butter'],
+    steps: [
+      'Poach chicken with onion and turmeric; shred.',
+      'Par-boil soaked basmati for 6 minutes; drain.',
+      'Mix yogurt, egg yolks, bloomed saffron and salt; fold in two-thirds of the rice.',
+      'Press half into a buttered dish, layer chicken and barberries, then the rest of the rice.',
+      'Top with plain rice and butter; cover and bake at 190 °C for 1½ hours.',
+      'Rest 10 minutes, then invert onto a platter.',
     ],
   }),
 ];
