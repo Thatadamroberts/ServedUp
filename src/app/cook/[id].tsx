@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { PlayerKitchen } from '../../components/PlayerKitchen';
 import { Body, PixelButton, PixelText, SegmentBar } from '../../components/ui';
+import { ACTION_ICONS, ACTION_LABELS, stepAction } from '../../game/cookActions';
 import { RECIPE_BY_ID } from '../../game/data';
 import { useGame } from '../../game/GameContext';
 import { colors } from '../../theme';
@@ -25,6 +26,9 @@ export default function Cook() {
   if (!recipe) return <Body>Recipe not found.</Body>;
   const count = done.filter(Boolean).length;
   const allDone = count === done.length;
+  // Animate whatever the next unticked step involves; plate up once everything is done.
+  const currentStep = done.findIndex((d) => !d);
+  const action = allDone ? 'plate' : stepAction(recipe.steps[currentStep]);
 
   const toggle = (i: number) => {
     if (Platform.OS !== 'web') Haptics.selectionAsync().catch(() => {});
@@ -44,7 +48,12 @@ export default function Cook() {
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
-      <PlayerKitchen mode="cook" cuisine={recipe.cuisine} height={170} />
+      <PlayerKitchen mode="cook" action={action} cuisine={recipe.cuisine} height={170} />
+      <View style={styles.actionTag} accessibilityLiveRegion="polite">
+        <PixelText size={8} color={colors.gold}>
+          {ACTION_ICONS[action]} {ACTION_LABELS[action]}…
+        </PixelText>
+      </View>
 
       <View style={[styles.row, { justifyContent: 'space-between', marginTop: 12 }]}>
         <PixelText size={11} style={{ flex: 1 }} numberOfLines={2}>
@@ -68,7 +77,11 @@ export default function Cook() {
             onPress={() => toggle(i)}
             accessibilityRole="checkbox"
             accessibilityState={{ checked: done[i] }}
-            style={[styles.step, done[i] && { backgroundColor: '#24402f', borderLeftColor: colors.xp }]}
+            style={[
+              styles.step,
+              i === currentStep && { borderColor: colors.gold },
+              done[i] && { backgroundColor: '#24402f', borderLeftColor: colors.xp },
+            ]}
           >
             <View style={[styles.box, done[i] && { backgroundColor: colors.xp }]}>
               {done[i] && (
@@ -96,6 +109,15 @@ export default function Cook() {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center' },
+  actionTag: {
+    alignSelf: 'center',
+    marginTop: -14,
+    backgroundColor: colors.bgDeep,
+    borderWidth: 3,
+    borderColor: colors.border,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
   step: {
     flexDirection: 'row',
     alignItems: 'flex-start',
