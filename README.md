@@ -9,7 +9,7 @@ Built with Expo (SDK 58), React Native and Expo Router.
 
 | Loop | What happens |
 | --- | --- |
-| **Choose a cuisine** | Italian, Japanese, Mexican, Indian or French. Each one comes with a free starter pantry that can already make a few dishes. |
+| **Choose a cuisine** | Italian, Japanese, Mexican, Indian, French or Persian. Each one comes with a free starter pantry that can already make a few dishes. |
 | **Cook** | Open a recipe and tap **Start cooking**. A step-by-step checklist (with a timer) guides you, and your chef tosses a pan while you work. Tick off every step, then **Serve it up!** |
 | **Earn** | Each dish pays **XP** and **coins**. The first time you cook a dish you get +50% XP. Harder dishes pay more. |
 | **Shop** | Spend coins in the **Market** on new ingredients. Once bought, they stay in your pantry. New stock appears as you level up. |
@@ -17,7 +17,7 @@ Built with Expo (SDK 58), React Native and Expo Router.
 | **Photograph** | After serving, take a photo with the camera or pick one from your library. It's linked to that cooked recipe in your **Journal**. The first photo on each dish pays a 10-coin tip. You can add notes too. |
 | **Expand** | Spend 120 coins to open another cuisine's kitchen and get its starter pantry. |
 
-There are 51 recipes across 5 cuisines, difficulty 1–5, with level gates up to LV 12. Titles run to LV 25.
+There are 64 recipes across 6 cuisines, difficulty 1–5, with level gates up to LV 12. Titles run to LV 25.
 
 ## The chef
 

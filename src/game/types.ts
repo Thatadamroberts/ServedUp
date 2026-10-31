@@ -1,4 +1,4 @@
-export type CuisineId = 'italian' | 'japanese' | 'mexican' | 'indian' | 'french';
+export type CuisineId = 'italian' | 'japanese' | 'mexican' | 'indian' | 'french' | 'persian';
 
 export interface Cuisine {
   id: CuisineId;
