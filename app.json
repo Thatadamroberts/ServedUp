@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Served Up",
+    "slug": "servedup",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.servedup.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#1b1a2e",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.servedup.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Served Up uses your photos so you can attach a picture of a dish you cooked to its recipe.",
+          "cameraPermission": "Served Up uses the camera so you can photograph the dishes you cook and link them to recipes."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "resizeMode": "contain",
+          "backgroundColor": "#1b1a2e"
+        }
+      ]
+    ],
+    "scheme": "servedup",
+    "backgroundColor": "#1b1a2e"
+  }
+}
