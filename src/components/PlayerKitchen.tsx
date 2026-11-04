@@ -1,5 +1,6 @@
 import { CUISINE_BY_ID } from '../game/data';
 import { useGameState } from '../game/GameContext';
+import type { CookAction } from '../game/cookActions';
 import type { CuisineId, Equipped } from '../game/types';
 import { ChefAvatar, type ChefMode } from './ChefAvatar';
 import { KitchenScene } from './KitchenScene';
@@ -8,12 +9,14 @@ import { useChefLook } from './useChefLook';
 /** The player's own kitchen and chef, dressed in whatever they've equipped. */
 export function PlayerKitchen({
   mode = 'idle',
+  action,
   height,
   cuisine,
   lookOverride,
   still,
 }: {
   mode?: ChefMode;
+  action?: CookAction;
   height?: number;
   cuisine?: CuisineId;
   lookOverride?: Equipped;
@@ -31,7 +34,7 @@ export function PlayerKitchen({
       decor={eq.decor}
       trophyCount={Object.keys(state.achievements).length}
     >
-      <ChefAvatar mode={mode} scarf={scarf} scarfShade={scarfShade} look={eq} scale={5} still={still} />
+      <ChefAvatar mode={mode} action={action} scarf={scarf} scarfShade={scarfShade} look={eq} scale={5} still={still} />
     </KitchenScene>
   );
 }

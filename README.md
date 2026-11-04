@@ -10,7 +10,7 @@ Built with Expo (SDK 58), React Native and Expo Router.
 | Loop | What happens |
 | --- | --- |
 | **Choose a cuisine** | Italian, Japanese, Mexican, Indian, French or Persian. Each one comes with a free starter pantry that can already make a few dishes. |
-| **Cook** | Open a recipe and tap **Start cooking**. A step-by-step checklist (with a timer) guides you, and your chef tosses a pan while you work. Tick off every step, then **Serve it up!** |
+| **Cook** | Open a recipe and tap **Start cooking**. A step-by-step checklist (with a timer) guides you. Your chef acts out the current step (chopping, boiling, frying, baking, mixing, rolling or plating) based on the recipe text. Tick off every step, then **Serve it up!** |
 | **Earn** | Each dish pays **XP** and **coins**. The first time you cook a dish you get +50% XP. Harder dishes pay more. |
 | **Shop** | Spend coins in the **Market** on new ingredients. Once bought, they stay in your pantry. New stock appears as you level up. |
 | **Level up** | XP raises your level, which unlocks tougher recipes and gives you a new title. Your chef's neckerchief changes colour with each title. |
@@ -31,7 +31,7 @@ The chef is drawn as 16-bit pixel art (`src/components/sprites.ts`) and rendered
 (`PixelSprite.tsx`). `ChefAvatar.tsx` animates it frame by frame:
 
 - **idle**: breathing bob and blinking (Kitchen tab)
-- **cook**: tossing a pan over a flickering flame, with rising steam (cooking screen)
+- **cook**: one of seven actions picked from the current step (`src/game/cookActions.ts`): a rocking knife on a chopping board, a bubbling pot, a tossed frying pan, a glowing oven, a whisk in a bowl, a rolling pin on dough, or a finished plate (`src/components/cookingArt.ts`)
 - **cheer**: arms up, hopping, with sparkles (dish served)
 
 The UI uses the *Press Start 2P* pixel font, bevelled 16-bit panels and segmented XP bars.
@@ -82,8 +82,12 @@ npm run lint
 Use [EAS Build](https://docs.expo.dev/build/introduction/):
 
 ```bash
-npx eas-cli@latest build --platform android   # or ios / all
+npx eas-cli@latest build --platform android --profile preview   # installable .apk for Android phones
+npx eas-cli@latest build --platform android --profile production # .aab for the Play Store
+npx eas-cli@latest build --platform ios                          # needs an Apple Developer account
 ```
+
+The `preview` profile in `eas.json` produces an `.apk` you can download and install on an Android phone directly.
 
 The bundle IDs are `com.servedup.app` on both platforms. Change them in `app.json` before you publish.
 The camera and photo-library permission prompts are set through the `expo-image-picker` plugin in `app.json`.
