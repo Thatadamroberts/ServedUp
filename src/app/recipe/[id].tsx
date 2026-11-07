@@ -1,6 +1,7 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Medal } from '../../components/Medal';
+import { DetailToggle, StepHelp } from '../../components/StepHelp';
 import { Body, Coins, Difficulty, Panel, PixelButton, PixelText, Tag } from '../../components/ui';
 import { CUISINE_BY_ID, INGREDIENT_BY_ID, RECIPE_BY_ID } from '../../game/data';
 import { useGame, useGameState } from '../../game/GameContext';
@@ -110,15 +111,19 @@ export default function RecipeDetail() {
         Plus cupboard staples: salt, pepper, oil, sugar, water.
       </Body>
 
-      <PixelText size={10} style={styles.h}>
-        METHOD
-      </PixelText>
+      <View style={[styles.row, styles.h, { justifyContent: 'space-between' }]}>
+        <PixelText size={10}>METHOD</PixelText>
+        {!locked && <DetailToggle />}
+      </View>
       {recipe.steps.map((s, i) => (
-        <View key={i} style={[styles.row, { alignItems: 'flex-start', marginBottom: 8 }]}>
+        <View key={i} style={[styles.row, { alignItems: 'flex-start', marginBottom: 10 }]}>
           <PixelText size={9} color={colors.gold} style={{ width: 26 }}>
             {i + 1}.
           </PixelText>
-          <Body style={{ flex: 1, opacity: locked ? 0.4 : 1 }}>{locked ? '???' : s}</Body>
+          <View style={{ flex: 1 }}>
+            <Body style={{ opacity: locked ? 0.4 : 1 }}>{locked ? '???' : s}</Body>
+            {!locked && <StepHelp steps={recipe.steps} index={i} />}
+          </View>
         </View>
       ))}
 

@@ -1,3 +1,5 @@
+import { ing, recipe } from './builders.ts';
+import { EXTRA_INGREDIENTS, EXTRA_RECIPES } from './recipesExtra.ts';
 import type { Cuisine, CuisineId, Ingredient, Recipe } from './types.ts';
 
 export const CUISINES: Cuisine[] = [
@@ -7,6 +9,9 @@ export const CUISINES: Cuisine[] = [
   { id: 'indian', name: 'Indian', emoji: '🍛', tagline: 'Spice, slow-cooks & tadka', color: '#e89a1c', unlockCost: 120 },
   { id: 'french', name: 'French', emoji: '🥐', tagline: 'Butter, technique & finesse', color: '#3d6fd9', unlockCost: 120 },
   { id: 'persian', name: 'Persian', emoji: '🫖', tagline: 'Saffron, herbs & golden tahdig', color: '#1aa3a3', unlockCost: 120 },
+  { id: 'chinese', name: 'Chinese', emoji: '🥟', tagline: 'Woks, dumplings & wok hei', color: '#b23a48', unlockCost: 120 },
+  { id: 'greek', name: 'Greek', emoji: '🫒', tagline: 'Olive oil, lemon & feta', color: '#7d8f3a', unlockCost: 120 },
+  { id: 'desserts', name: 'Desserts', emoji: '🍰', tagline: 'Bakes, custards & chocolate', color: '#b06ad9', unlockCost: 120 },
 ];
 
 /** Free starter pantry granted when a cuisine is chosen / unlocked. */
@@ -17,19 +22,13 @@ export const STARTER_PACKS: Record<CuisineId, string[]> = {
   indian: ['basmati', 'red_lentils', 'onion', 'garlic', 'turmeric', 'cumin'],
   french: ['baguette', 'butter', 'eggs', 'flour', 'milk'],
   persian: ['basmati', 'yogurt', 'onion', 'turmeric', 'dried_mint', 'cucumber', 'eggs'],
+  chinese: ['jasmine', 'soy_sauce', 'eggs', 'scallions', 'garlic', 'ginger', 'sesame_oil'],
+  greek: ['olive_oil', 'lemon', 'tomato', 'cucumber', 'feta', 'oregano', 'onion', 'eggs'],
+  desserts: ['flour', 'butter', 'eggs', 'milk', 'vanilla', 'baking_powder'],
 };
 
 /** Always in the cupboard; never listed as requirements. */
 export const STAPLES = ['Salt', 'Black pepper', 'Cooking oil', 'Sugar', 'Water'];
-
-const ing = (
-  id: string,
-  name: string,
-  emoji: string,
-  cuisine: Ingredient['cuisine'],
-  price: number,
-  minLevel = 1,
-): Ingredient => ({ id, name, emoji, cuisine, price, minLevel });
 
 export const INGREDIENTS: Ingredient[] = [
   // Common – useful across cuisines
@@ -55,7 +54,7 @@ export const INGREDIENTS: Ingredient[] = [
 
   // Italian
   ing('pasta', 'Dried spaghetti', '🍝', 'italian', 20),
-  ing('olive_oil', 'Extra-virgin olive oil', '🫒', 'italian', 25),
+  ing('olive_oil', 'Extra-virgin olive oil', '🫒', 'common', 25),
   ing('parmesan', 'Parmigiano', '🧀', 'italian', 35),
   ing('ciabatta', 'Ciabatta', '🥖', 'italian', 15),
   ing('basil', 'Fresh basil', '🌿', 'italian', 15),
@@ -67,25 +66,25 @@ export const INGREDIENTS: Ingredient[] = [
   ing('mascarpone', 'Mascarpone', '🍨', 'italian', 55, 8),
   ing('espresso', 'Espresso', '☕', 'italian', 35, 8),
   ing('ladyfingers', 'Savoiardi biscuits', '🍪', 'italian', 40, 8),
-  ing('cocoa', 'Cocoa powder', '🟫', 'italian', 25, 8),
+  ing('cocoa', 'Cocoa powder', '🟫', 'common', 25, 2),
   ing('flour_00', '"00" pasta flour', '🌾', 'italian', 40, 9),
 
   // Japanese
   ing('rice_jp', 'Short-grain rice', '🍚', 'japanese', 25),
-  ing('soy_sauce', 'Soy sauce', '🫙', 'japanese', 20),
-  ing('scallions', 'Spring onions', '🌱', 'japanese', 10),
+  ing('soy_sauce', 'Soy sauce', '🫙', 'common', 20),
+  ing('scallions', 'Spring onions', '🌱', 'common', 10),
   ing('nori', 'Nori sheets', '🟩', 'japanese', 20),
   ing('mirin', 'Mirin', '🍶', 'japanese', 25),
   ing('dashi', 'Dashi stock', '🐟', 'japanese', 30, 2),
   ing('miso', 'White miso', '🥣', 'japanese', 30, 2),
-  ing('tofu', 'Silken tofu', '🧊', 'japanese', 20, 2),
+  ing('tofu', 'Silken tofu', '🧊', 'common', 20, 2),
   ing('sake', 'Cooking sake', '🍶', 'japanese', 35, 3),
   ing('rice_vinegar', 'Rice vinegar', '🧴', 'japanese', 20, 5),
   ing('salmon', 'Sashimi-grade salmon', '🐟', 'japanese', 70, 5),
   ing('panko', 'Panko breadcrumbs', '🍞', 'japanese', 20, 6),
   ing('pork_loin', 'Pork loin', '🥩', 'japanese', 55, 6),
-  ing('cabbage', 'Cabbage', '🥬', 'japanese', 15, 6),
-  ing('pork_belly', 'Pork belly', '🥓', 'japanese', 65, 7),
+  ing('cabbage', 'Cabbage', '🥬', 'common', 15, 3),
+  ing('pork_belly', 'Pork belly', '🥓', 'common', 65, 7),
   ing('ramen', 'Fresh ramen noodles', '🍜', 'japanese', 40, 10),
 
   // Mexican
@@ -99,7 +98,7 @@ export const INGREDIENTS: Ingredient[] = [
   ing('chipotle', 'Chipotle in adobo', '🥫', 'mexican', 30, 4),
   ing('rice_mx', 'Long-grain rice', '🍚', 'mexican', 20, 5),
   ing('cumin_mx', 'Ground cumin', '🟤', 'mexican', 15, 6),
-  ing('pork_shoulder', 'Pork shoulder', '🍖', 'mexican', 60, 6),
+  ing('pork_shoulder', 'Pork shoulder', '🍖', 'common', 60, 5),
   ing('ancho', 'Dried ancho chiles', '🌶️', 'mexican', 35, 7),
   ing('masa', 'Masa harina', '🌽', 'mexican', 35, 10),
   ing('corn_husks', 'Corn husks', '🌽', 'mexican', 25, 10),
@@ -110,22 +109,22 @@ export const INGREDIENTS: Ingredient[] = [
   ing('red_lentils', 'Red lentils', '🟠', 'indian', 15),
   ing('cumin', 'Cumin seeds', '🟤', 'indian', 15),
   ing('chilli_powder', 'Kashmiri chilli', '🌶️', 'indian', 15),
-  ing('ginger', 'Fresh ginger', '🫚', 'indian', 15, 2),
+  ing('ginger', 'Fresh ginger', '🫚', 'common', 15),
   ing('garam_masala', 'Garam masala', '🟫', 'indian', 25, 3),
   ing('chickpeas', 'Chickpeas', '🫘', 'indian', 15, 3),
   ing('cauliflower', 'Cauliflower', '🥦', 'indian', 20, 3),
   ing('ghee', 'Ghee', '🧈', 'indian', 30, 4),
-  ing('spinach', 'Spinach', '🥬', 'indian', 20, 5),
+  ing('spinach', 'Spinach', '🥬', 'common', 20, 4),
   ing('paneer', 'Paneer', '🧀', 'indian', 45, 5),
   ing('cardamom', 'Green cardamom', '🟢', 'indian', 35, 10),
 
   // French
   ing('baguette', 'Baguette', '🥖', 'french', 15),
-  ing('chives', 'Chives', '🌱', 'french', 10),
+  ing('chives', 'Chives', '🌱', 'common', 10),
   ing('gruyere', 'Gruyère', '🧀', 'french', 45, 2),
   ing('ham', 'Jambon (ham)', '🍖', 'french', 35, 2),
   ing('leeks', 'Leeks', '🥬', 'french', 15, 3),
-  ing('pastry', 'Shortcrust pastry', '🥧', 'french', 30, 4),
+  ing('pastry', 'Shortcrust pastry', '🥧', 'common', 30, 4),
   ing('lardons', 'Lardons', '🥓', 'french', 40, 4),
   ing('thyme', 'Thyme', '🌿', 'french', 15, 5),
   ing('beef_stock', 'Beef stock', '🥣', 'french', 25, 5),
@@ -133,36 +132,24 @@ export const INGREDIENTS: Ingredient[] = [
   ing('bell_pepper', 'Bell peppers', '🫑', 'french', 15, 6),
   ing('red_wine', 'Burgundy red wine', '🍷', 'french', 60, 8),
   ing('beef_chuck', 'Beef chuck', '🥩', 'french', 80, 10),
-  ing('dark_choc', 'Dark chocolate 70%', '🍫', 'french', 50, 12),
+  ing('dark_choc', 'Dark chocolate 70%', '🍫', 'common', 50, 2),
 
   // Persian
   ing('dried_mint', 'Dried mint', '🌿', 'persian', 15),
-  ing('cucumber', 'Persian cucumbers', '🥒', 'persian', 10),
+  ing('cucumber', 'Cucumbers', '🥒', 'common', 10),
   ing('saffron', 'Saffron', '🟧', 'persian', 50, 2),
   ing('kashk', 'Kashk (fermented whey)', '🥣', 'persian', 30, 2),
   ing('herbs_fa', 'Fresh herbs (parsley, coriander, dill)', '🌱', 'persian', 20, 3),
   ing('dried_lime', 'Dried limes (limoo omani)', '🟤', 'persian', 25, 4),
   ing('kidney_beans', 'Red kidney beans', '🫘', 'persian', 15, 4),
-  ing('lamb', 'Lamb shoulder', '🍖', 'persian', 70, 4),
+  ing('lamb', 'Lamb shoulder', '🍖', 'common', 70, 4),
   ing('split_peas', 'Yellow split peas', '🟡', 'persian', 15, 5),
-  ing('walnuts', 'Walnuts', '🌰', 'persian', 35, 6),
+  ing('walnuts', 'Walnuts', '🌰', 'common', 35, 6),
   ing('pom_molasses', 'Pomegranate molasses', '🍷', 'persian', 35, 6),
   ing('barberries', 'Barberries (zereshk)', '🔴', 'persian', 40, 7),
   ing('rosewater', 'Rosewater', '🌹', 'persian', 30, 9),
   ing('pistachios', 'Pistachios', '🟢', 'persian', 45, 9),
 ];
-
-/** Rewards scale with difficulty so tougher dishes are worth more. */
-const REWARDS: Record<Recipe['difficulty'], { xp: number; coins: number }> = {
-  1: { xp: 40, coins: 25 },
-  2: { xp: 70, coins: 40 },
-  3: { xp: 110, coins: 60 },
-  4: { xp: 160, coins: 85 },
-  5: { xp: 230, coins: 120 },
-};
-
-type RecipeInput = Omit<Recipe, 'xp' | 'coins'> & { xp?: number; coins?: number };
-const recipe = (r: RecipeInput): Recipe => ({ ...REWARDS[r.difficulty], ...r });
 
 export const RECIPES: Recipe[] = [
   // ───────────── ITALIAN ─────────────
@@ -917,6 +904,9 @@ export const RECIPES: Recipe[] = [
     ],
   }),
 ];
+
+INGREDIENTS.push(...EXTRA_INGREDIENTS);
+RECIPES.push(...EXTRA_RECIPES);
 
 export const INGREDIENT_BY_ID: Record<string, Ingredient> = Object.fromEntries(
   INGREDIENTS.map((i) => [i.id, i]),

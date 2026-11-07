@@ -12,6 +12,7 @@ export interface PlayerStats {
   pantry: number;
   cosmeticsBought: number;
   masterDishes: number;
+  dessertsCooked: number;
   longestCookMinutes: number;
 }
 
@@ -45,6 +46,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'level_5', name: 'Commis', description: 'Reach level 5.', icon: '🎖️', coins: 50, check: (s) => s.level >= 5 },
   { id: 'level_10', name: 'Head of the Pass', description: 'Reach level 10.', icon: '🏆', coins: 150, check: (s) => s.level >= 10 },
   { id: 'pantry_25', name: 'Well Stocked', description: 'Own 25 ingredients.', icon: '🧺', coins: 50, check: (s) => s.pantry >= 25 },
+  { id: 'sweet_tooth', name: 'Sweet Tooth', description: 'Bake 5 desserts.', icon: '🍰', coins: 50, check: (s) => s.dessertsCooked >= 5 },
   { id: 'stylish', name: 'Dressed to Grill', description: 'Buy your first outfit or decor.', icon: '🎩', coins: 20, check: (s) => s.cosmeticsBought >= 1 },
 ];
 

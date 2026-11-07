@@ -1,4 +1,13 @@
-export type CuisineId = 'italian' | 'japanese' | 'mexican' | 'indian' | 'french' | 'persian';
+export type CuisineId =
+  | 'italian'
+  | 'japanese'
+  | 'mexican'
+  | 'indian'
+  | 'french'
+  | 'persian'
+  | 'chinese'
+  | 'greek'
+  | 'desserts';
 
 export interface Cuisine {
   id: CuisineId;
@@ -111,4 +120,10 @@ export interface GameState {
   daily: DailySpecial | null;
   /** Achievement id → unlock time. */
   achievements: Record<string, number>;
+  settings: Settings;
+}
+
+export interface Settings {
+  /** Show technique how-tos under each recipe step. */
+  detailedSteps: boolean;
 }

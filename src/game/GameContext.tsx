@@ -23,6 +23,7 @@ interface GameApi {
   setNote: (completionId: string, note: string) => void;
   buyCosmetic: (id: string) => P.Result;
   equip: (id: string) => void;
+  setDetailedSteps: (on: boolean) => void;
   refreshDaily: () => void;
   reset: () => Promise<void>;
 }
@@ -107,6 +108,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setNote: (id, note) => withState((s) => commit(P.setNote(s, id, note)), undefined),
       buyCosmetic: (id) => result((s) => P.buyCosmetic(s, id)),
       equip: (id) => withState((s) => commit(P.equipCosmetic(s, id)), undefined),
+      setDetailedSteps: (on) => withState((s) => commit(P.setDetailedSteps(s, on)), undefined),
       refreshDaily,
       reset: async () => {
         setToasts([]);

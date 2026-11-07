@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { PlayerKitchen } from '../../components/PlayerKitchen';
+import { DetailToggle, StepHelp } from '../../components/StepHelp';
 import { Body, PixelButton, PixelText, SegmentBar } from '../../components/ui';
 import { ACTION_ICONS, ACTION_LABELS, stepAction } from '../../game/cookActions';
 import { RECIPE_BY_ID } from '../../game/data';
@@ -71,27 +72,39 @@ export default function Cook() {
       </PixelText>
 
       <View style={{ marginTop: 14 }}>
+        <View style={[styles.row, { justifyContent: 'space-between', marginBottom: 10 }]}>
+          <PixelText size={8} color={colors.textDim}>
+            INSTRUCTIONS
+          </PixelText>
+          <DetailToggle />
+        </View>
         {recipe.steps.map((s, i) => (
-          <Pressable
-            key={i}
-            onPress={() => toggle(i)}
-            accessibilityRole="checkbox"
-            accessibilityState={{ checked: done[i] }}
-            style={[
-              styles.step,
-              i === currentStep && { borderColor: colors.gold },
-              done[i] && { backgroundColor: '#24402f', borderLeftColor: colors.xp },
-            ]}
-          >
-            <View style={[styles.box, done[i] && { backgroundColor: colors.xp }]}>
-              {done[i] && (
-                <PixelText size={9} color="#10261a">
-                  ✓
-                </PixelText>
-              )}
-            </View>
-            <Body style={{ flex: 1, opacity: done[i] ? 0.6 : 1, textDecorationLine: done[i] ? 'line-through' : 'none' }}>{s}</Body>
-          </Pressable>
+          <View key={i} style={{ marginBottom: 8 }}>
+            <Pressable
+              onPress={() => toggle(i)}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: done[i] }}
+              style={[
+                styles.step,
+                i === currentStep && { borderColor: colors.gold },
+                done[i] && { backgroundColor: '#24402f', borderLeftColor: colors.xp },
+              ]}
+            >
+              <View style={[styles.box, done[i] && { backgroundColor: colors.xp }]}>
+                {done[i] && (
+                  <PixelText size={9} color="#10261a">
+                    ✓
+                  </PixelText>
+                )}
+              </View>
+              <Body style={{ flex: 1, opacity: done[i] ? 0.6 : 1, textDecorationLine: done[i] ? 'line-through' : 'none' }}>{s}</Body>
+            </Pressable>
+            {!done[i] && (
+              <View style={{ paddingLeft: 12 }}>
+                <StepHelp steps={recipe.steps} index={i} />
+              </View>
+            )}
+          </View>
         ))}
       </View>
 
@@ -127,7 +140,6 @@ const styles = StyleSheet.create({
     borderLeftWidth: 6,
     borderLeftColor: colors.gold,
     padding: 10,
-    marginBottom: 8,
   },
   box: {
     width: 24,

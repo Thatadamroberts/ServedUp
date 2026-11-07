@@ -119,6 +119,7 @@ export function newGame(chefName: string, cuisine: CuisineId, now = Date.now()):
     streak: { current: 0, best: 0, lastDay: null },
     daily: null,
     achievements: {},
+    settings: { detailedSteps: false },
   };
 }
 
@@ -132,7 +133,12 @@ export function normalizeState(raw: GameState): GameState {
     streak: s.streak ?? { current: 0, best: 0, lastDay: null },
     daily: s.daily ?? null,
     achievements: s.achievements ?? {},
+    settings: { detailedSteps: s.settings?.detailedSteps ?? false },
   };
+}
+
+export function setDetailedSteps(state: GameState, detailedSteps: boolean): GameState {
+  return { ...state, settings: { ...state.settings, detailedSteps } };
 }
 
 export function currentLevel(state: GameState): number {
@@ -458,6 +464,7 @@ export function playerStats(state: GameState): PlayerStats {
     pantry: state.ownedIngredients.length,
     cosmeticsBought: state.ownedCosmetics.filter((id) => (COSMETIC_BY_ID[id]?.price ?? 0) > 0).length,
     masterDishes: cooked.filter((r) => r.difficulty === 5).length,
+    dessertsCooked: cooked.filter((r) => r.cuisine === 'desserts').length,
     longestCookMinutes: Math.max(0, ...cooked.map((r) => r.minutes)),
   };
 }
