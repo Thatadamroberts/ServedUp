@@ -9,8 +9,8 @@ Built with Expo (SDK 58), React Native and Expo Router.
 
 | Loop | What happens |
 | --- | --- |
-| **Choose a cuisine** | Italian, Japanese, Mexican, Indian, French or Persian. Each one comes with a free starter pantry that can already make a few dishes. |
-| **Cook** | Open a recipe and tap **Start cooking**. A step-by-step checklist (with a timer) guides you. Your chef acts out the current step (chopping, boiling, frying, baking, mixing, rolling or plating) based on the recipe text. Tick off every step, then **Serve it up!** |
+| **Choose a cuisine** | Italian, Japanese, Mexican, Indian, French, Persian, Chinese, Greek, or a Desserts kitchen for bakes, custards and chocolate. Each one comes with a free starter pantry that can already make a few dishes. |
+| **Cook** | Open a recipe and tap **Start cooking**. A step-by-step checklist (with a timer) guides you. Your chef acts out the current step (chopping, boiling, frying, baking, mixing, rolling or plating) based on the recipe text. Tick off every step, then **Serve it up!** Switch to **Detailed** (or tap **HOW?** on a step) for step-by-step technique notes: how to dice, simmer, fold, blind-bake and more, and how to tell when it's done. |
 | **Earn** | Each dish pays **XP** and **coins**. The first time you cook a dish you get +50% XP. Harder dishes pay more. |
 | **Shop** | Spend coins in the **Market** on new ingredients. Once bought, they stay in your pantry. New stock appears as you level up. |
 | **Level up** | XP raises your level, which unlocks tougher recipes and gives you a new title. Your chef's neckerchief changes colour with each title. |
@@ -20,10 +20,10 @@ Built with Expo (SDK 58), React Native and Expo Router.
 | **Streaks** | Cook on consecutive days to build a streak. Reaching 3, 7, 14 and 30 days pays 30, 75, 150 and 300 coins. |
 | **Mastery** | Cook a dish 1, 3 and 5 times for bronze, silver and gold medals. Silver pays 20 coins and gold pays 50. |
 | **Wardrobe** | Spend coins on hats, coats, a mustache or glasses, kitchen wall tiles and decor (a plant, copper pans, a cat, a neon sign). Try items on before buying. |
-| **Trophies** | 20 achievements, each paying coins, and a trophy appears on your kitchen counter for each one. |
+| **Trophies** | 21 achievements, each paying coins, and a trophy appears on your kitchen counter for each one. |
 | **Share** | Export your chef profile or any cooked dish as an Instagram post (1080×1350) or story (1080×1920), with a ready-made caption. |
 
-There are 64 recipes across 6 cuisines, difficulty 1–5, with level gates up to LV 12. Titles run to LV 25.
+There are 114 recipes across 9 kitchens, difficulty 1–5, with level gates up to LV 12. Titles run to LV 25.
 
 ## The chef
 
@@ -53,7 +53,9 @@ src/
     cook/[id].tsx       step checklist + timer
     entry/[id].tsx      rewards / level-up + photo & notes for a cooked dish
   game/
-    data.ts             cuisines, ingredients, recipes
+    data.ts             cuisines, ingredients, recipes (original six kitchens)
+    recipesExtra.ts     Chinese, Greek and Desserts kitchens, plus extra recipes
+    techniques.ts       technique how-tos shown in Detailed mode
     progression.ts      pure game rules (XP, titles, buying, cooking, streaks, specials, mastery, wardrobe)
     achievements.ts     trophy definitions
     cosmetics.ts        wardrobe and decor catalogue

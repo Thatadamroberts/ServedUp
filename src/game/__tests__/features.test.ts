@@ -101,11 +101,12 @@ test('achievements unlock once and pay coins', () => {
 });
 
 test('old saves are upgraded with defaults', () => {
-  const { ownedCosmetics, equipped, streak, daily, achievements, ...old } = newGame('Ada', 'italian', t0);
-  void ownedCosmetics; void equipped; void streak; void daily; void achievements;
+  const { ownedCosmetics, equipped, streak, daily, achievements, settings, ...old } = newGame('Ada', 'italian', t0);
+  void ownedCosmetics; void equipped; void streak; void daily; void achievements; void settings;
   const s = normalizeState(old as GameState);
   assert.equal(s.equipped.hat, 'toque');
   assert.ok(s.ownedCosmetics.includes('whites'));
   assert.equal(s.streak.current, 0);
   assert.deepEqual(s.achievements, {});
+  assert.equal(s.settings.detailedSteps, false);
 });
