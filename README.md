@@ -91,6 +91,21 @@ npx eas-cli@latest build --platform ios                          # needs an Appl
 
 The `preview` profile in `eas.json` produces an `.apk` you can download and install on an Android phone directly.
 
+### Versions
+
+`app.json` holds the app version (`expo.version`) and the build numbers phones use to spot an
+update (`android.versionCode`, `ios.buildNumber`). Note changes under **Unreleased** in
+[`CHANGELOG.md`](CHANGELOG.md), then before a release run:
+
+```bash
+npm run version:bump -- minor   # new features or content: 1.1.0 → 1.2.0
+npm run version:bump -- patch   # fixes only: 1.1.0 → 1.1.1
+```
+
+This bumps the version in `app.json`, `package.json` and `package-lock.json`, raises both build
+numbers by one, and dates the Unreleased notes in the changelog. A test fails if these drift apart.
+The installed version is shown at the bottom of the Kitchen screen.
+
 The bundle IDs are `com.servedup.app` on both platforms. Change them in `app.json` before you publish.
 The camera and photo-library permission prompts are set through the `expo-image-picker` plugin in `app.json`.
 
