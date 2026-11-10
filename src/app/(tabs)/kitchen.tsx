@@ -1,6 +1,7 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { appVersionLabel } from '../../appVersion';
 import { PixelDialog, type DialogSpec } from '../../components/PixelDialog';
 import { PlayerHud } from '../../components/PlayerHud';
 import { PlayerKitchen } from '../../components/PlayerKitchen';
@@ -195,6 +196,9 @@ export default function Kitchen() {
           RESET SAVE
         </PixelText>
       </Pressable>
+      <PixelText size={6} color={colors.textDim} style={{ marginTop: 12, textAlign: 'center', opacity: 0.7 }}>
+        SERVED UP {appVersionLabel().toUpperCase()}
+      </PixelText>
       <PixelDialog spec={dialog} onClose={() => setDialog(null)} />
     </ScrollView>
   );

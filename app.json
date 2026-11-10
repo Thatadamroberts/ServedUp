@@ -2,13 +2,14 @@
   "expo": {
     "name": "Served Up",
     "slug": "servedup",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.servedup.app"
+      "bundleIdentifier": "com.servedup.app",
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +19,8 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.servedup.app"
+      "package": "com.servedup.app",
+      "versionCode": 2
     },
     "web": {
       "favicon": "./assets/favicon.png"
